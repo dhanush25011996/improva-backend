@@ -6,21 +6,9 @@
     "_postman_id": "improva-backend-collection"
   },
   "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:3000",
-      "type": "string"
-    },
-    {
-      "key": "api_prefix",
-      "value": "/api/v1",
-      "type": "string"
-    },
-    {
-      "key": "seat_number",
-      "value": "1",
-      "type": "string"
-    }
+    { "key": "base_url", "value": "http://localhost:3000", "type": "string" },
+    { "key": "api_prefix", "value": "/api/v1", "type": "string" },
+    { "key": "seat_number", "value": "1", "type": "string" }
   ],
   "item": [
     {
@@ -105,22 +93,35 @@
           "name": "Book Seat",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"passenger\": {\n    \"name\": \"Jane Doe\",\n    \"email\": \"jane@example.com\",\n    \"phone\": \"+911234567890\"\n  }\n}"
+              "raw": "{\n  \"passenger\": {\n    \"first_name\": \"Jane\",\n    \"last_name\": \"Doe\",\n    \"email\": \"jane@example.com\",\n    \"phone\": \"+911234567890\"\n  }\n}"
             },
             "url": {
               "raw": "{{base_url}}{{api_prefix}}/booking/{{seat_number}}/book",
               "host": ["{{base_url}}{{api_prefix}}"],
               "path": ["booking", "{{seat_number}}", "book"]
             },
-            "description": "Books the given seat (sets status to CLOSED) and stores passenger details. Fails with 409 if the seat is already booked."
+            "description": "Books the given seat (sets status to CLOSED) and stores passenger details. `phone` is optional. Fails with 409 if the seat is already booked."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Passenger Details",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passenger\": {\n    \"first_name\": \"Jane\",\n    \"last_name\": \"Smith\",\n    \"email\": \"jane.smith@example.com\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/booking/{{seat_number}}/passenger",
+              "host": ["{{base_url}}{{api_prefix}}"],
+              "path": ["booking", "{{seat_number}}", "passenger"]
+            },
+            "description": "Updates passenger details for a booked seat. Seat number itself cannot be changed. Fails with 409 if the seat is OPEN (not booked)."
           },
           "response": []
         },

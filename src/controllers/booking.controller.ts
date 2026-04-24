@@ -7,6 +7,7 @@ import {
   getTicketPassenger,
   getTicketStatus,
   resetAllTickets,
+  updatePassenger,
 } from "../services/booking.service";
 import {
   buildSuccessResponse,
@@ -117,6 +118,24 @@ export const bookSeat = async (
 
   try {
     const ticket = await bookTicket(req.params.seatNumber, req.body?.passenger);
+    logger.info(
+      { api_name, seat: ticket.seat_number },
+      `${api_name}: Successful`
+    );
+    buildSuccessResponse(res, api_name, timestamp, ticket);
+  } catch (error) {
+    handleError(error, res, api_name, timestamp);
+  }
+};
+
+export const updatePassengerBySeat = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const [api_name, timestamp] = ["Booking: Update Passenger", new Date().toISOString()];
+
+  try {
+    const ticket = await updatePassenger(req.params.seatNumber, req.body?.passenger);
     logger.info(
       { api_name, seat: ticket.seat_number },
       `${api_name}: Successful`

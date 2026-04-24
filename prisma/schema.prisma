@@ -13,15 +13,16 @@ enum TicketStatus {
 }
 
 model Ticket {
-  id              Int          @id @default(autoincrement())
-  seat_number     Int          @unique
-  status          TicketStatus @default(OPEN)
-  passenger_name  String?      @db.VarChar(120)
-  passenger_email String?      @db.VarChar(180)
-  passenger_phone String?      @db.VarChar(30)
-  booked_at       DateTime?
-  created_at      DateTime     @default(now())
-  updated_at      DateTime     @updatedAt
+  id                   Int          @id @default(autoincrement())
+  seat_number          Int          @unique
+  status               TicketStatus @default(OPEN)
+  passenger_first_name String?      @db.VarChar(80)
+  passenger_last_name  String?      @db.VarChar(80)
+  passenger_email      String?      @db.VarChar(180)
+  passenger_phone      String?      @db.VarChar(30)
+  booked_at            DateTime?
+  created_at           DateTime     @default(now())
+  updated_at           DateTime     @updatedAt
 
   @@map("tickets")
 }

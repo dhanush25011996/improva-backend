@@ -3,9 +3,10 @@ import { AppError } from "../helpers/app-error.helper";
 import { TicketStatus } from "../generated/prisma/enums";
 
 export interface PassengerDetails {
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  phone: string;
+  phone?: string | null;
 }
 
 const parseSeatNumber = (raw: unknown): number => {
@@ -32,13 +33,14 @@ const validatePassengerDetails = (
   if (!input) {
     throw new AppError("passenger details are required", 400);
   }
-  const name = input.name?.trim();
+  const first_name = input.first_name?.trim();
+  const last_name = input.last_name?.trim();
   const email = input.email?.trim();
-  const phone = input.phone?.trim();
+  const phone = input.phone?.toString().trim() || null;
 
-  if (!name || !email || !phone) {
+  if (!first_name || !last_name || !email) {
     throw new AppError(
-      "passenger.name, passenger.email and passenger.phone are required",
+      "passenger.first_name, passenger.last_name and passenger.email are required",
       400
     );
   }
@@ -48,22 +50,20 @@ const validatePassengerDetails = (
     throw new AppError("passenger.email is not a valid email", 400);
   }
 
-  return { name, email, phone };
+  return { first_name, last_name, email, phone };
 };
 
-export const getAllOpenTickets = () => {
-  return prisma.ticket.findMany({
+export const getAllOpenTickets = () =>
+  prisma.ticket.findMany({
     where: { status: TicketStatus.OPEN },
     orderBy: { seat_number: "asc" },
   });
-};
 
-export const getAllClosedTickets = () => {
-  return prisma.ticket.findMany({
+export const getAllClosedTickets = () =>
+  prisma.ticket.findMany({
     where: { status: TicketStatus.CLOSED },
     orderBy: { seat_number: "asc" },
   });
-};
 
 export const getTicketStatus = async (seatNumberRaw: unknown) => {
   const seatNumber = parseSeatNumber(seatNumberRaw);
@@ -89,7 +89,8 @@ export const getTicketPassenger = async (seatNumberRaw: unknown) => {
     seat_number: ticket.seat_number,
     status: ticket.status,
     passenger: {
-      name: ticket.passenger_name,
+      first_name: ticket.passenger_first_name,
+      last_name: ticket.passenger_last_name,
       email: ticket.passenger_email,
       phone: ticket.passenger_phone,
     },
@@ -119,10 +120,44 @@ export const bookTicket = async (
       where: { seat_number: seatNumber },
       data: {
         status: TicketStatus.CLOSED,
-        passenger_name: passenger.name,
+        passenger_first_name: passenger.first_name,
+        passenger_last_name: passenger.last_name,
         passenger_email: passenger.email,
         passenger_phone: passenger.phone,
         booked_at: new Date(),
+      },
+    });
+  });
+};
+
+export const updatePassenger = async (
+  seatNumberRaw: unknown,
+  passengerInput: Partial<PassengerDetails> | undefined
+) => {
+  const seatNumber = parseSeatNumber(seatNumberRaw);
+  const passenger = validatePassengerDetails(passengerInput);
+
+  return prisma.$transaction(async (tx) => {
+    const ticket = await tx.ticket.findUnique({
+      where: { seat_number: seatNumber },
+    });
+    if (!ticket) {
+      throw new AppError(`Ticket for seat ${seatNumber} not found`, 404);
+    }
+    if (ticket.status === TicketStatus.OPEN) {
+      throw new AppError(
+        `Seat ${seatNumber} is not booked - nothing to update`,
+        409
+      );
+    }
+
+    return tx.ticket.update({
+      where: { seat_number: seatNumber },
+      data: {
+        passenger_first_name: passenger.first_name,
+        passenger_last_name: passenger.last_name,
+        passenger_email: passenger.email,
+        passenger_phone: passenger.phone,
       },
     });
   });
@@ -146,7 +181,8 @@ export const cancelTicket = async (seatNumberRaw: unknown) => {
       where: { seat_number: seatNumber },
       data: {
         status: TicketStatus.OPEN,
-        passenger_name: null,
+        passenger_first_name: null,
+        passenger_last_name: null,
         passenger_email: null,
         passenger_phone: null,
         booked_at: null,
@@ -159,7 +195,8 @@ export const resetAllTickets = async () => {
   const { count } = await prisma.ticket.updateMany({
     data: {
       status: TicketStatus.OPEN,
-      passenger_name: null,
+      passenger_first_name: null,
+      passenger_last_name: null,
       passenger_email: null,
       passenger_phone: null,
       booked_at: null,

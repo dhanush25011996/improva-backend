@@ -7,6 +7,7 @@ import {
   listClosedTickets,
   listOpenTickets,
   resetAllBookings,
+  updatePassengerBySeat,
 } from "../controllers/booking.controller";
 
 const router = Router();
@@ -18,6 +19,7 @@ router.post("/admin/reset", resetAllBookings);
 
 router.get("/:seatNumber/status", getTicketStatusBySeat);
 router.get("/:seatNumber/passenger", getPassengerBySeat);
+router.patch("/:seatNumber/passenger", updatePassengerBySeat);
 router.post("/:seatNumber/book", bookSeat);
 router.post("/:seatNumber/cancel", cancelSeat);
 
