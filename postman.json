@@ -1,0 +1,158 @@
+{
+  "info": {
+    "name": "Improva Backend",
+    "description": "Bus ticket booking API. 1 bus, 40 seats. OPEN = available, CLOSED = booked.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "improva-backend-collection"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "api_prefix",
+      "value": "/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "seat_number",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/health",
+              "host": ["{{base_url}}{{api_prefix}}"],
+              "path": ["health"]
+            },
+            "description": "Returns uptime, memory usage and node version of the running server."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Booking",
+      "item": [
+        {
+          "name": "List Open Tickets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/booking/open",
+              "host": ["{{base_url}}{{api_prefix}}"],
+              "path": ["booking", "open"]
+            },
+            "description": "Returns all tickets that are still available (status = OPEN)."
+          },
+          "response": []
+        },
+        {
+          "name": "List Closed Tickets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/booking/closed",
+              "host": ["{{base_url}}{{api_prefix}}"],
+              "path": ["booking", "closed"]
+            },
+            "description": "Returns all tickets that are currently booked (status = CLOSED)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket Status by Seat",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/booking/{{seat_number}}/status",
+              "host": ["{{base_url}}{{api_prefix}}"],
+              "path": ["booking", "{{seat_number}}", "status"]
+            },
+            "description": "Returns seat_number and current status (OPEN/CLOSED) for a specific seat."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Passenger Details by Seat",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/booking/{{seat_number}}/passenger",
+              "host": ["{{base_url}}{{api_prefix}}"],
+              "path": ["booking", "{{seat_number}}", "passenger"]
+            },
+            "description": "Returns passenger details for a booked seat. Fails with 409 if the seat is OPEN (not booked)."
+          },
+          "response": []
+        },
+        {
+          "name": "Book Seat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passenger\": {\n    \"name\": \"Jane Doe\",\n    \"email\": \"jane@example.com\",\n    \"phone\": \"+911234567890\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/booking/{{seat_number}}/book",
+              "host": ["{{base_url}}{{api_prefix}}"],
+              "path": ["booking", "{{seat_number}}", "book"]
+            },
+            "description": "Books the given seat (sets status to CLOSED) and stores passenger details. Fails with 409 if the seat is already booked."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Seat",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/booking/{{seat_number}}/cancel",
+              "host": ["{{base_url}}{{api_prefix}}"],
+              "path": ["booking", "{{seat_number}}", "cancel"]
+            },
+            "description": "Cancels a booked seat (sets status back to OPEN and clears passenger details). Fails with 409 if the seat is already OPEN."
+          },
+          "response": []
+        },
+        {
+          "name": "Admin - Reset All Tickets",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/booking/admin/reset",
+              "host": ["{{base_url}}{{api_prefix}}"],
+              "path": ["booking", "admin", "reset"]
+            },
+            "description": "Resets every ticket back to OPEN and clears all passenger details. Returns the number of tickets reset."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

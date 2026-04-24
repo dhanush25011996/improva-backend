@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum TicketStatus {
+  OPEN
+  CLOSED
+}
+
+model Ticket {
+  id              Int          @id @default(autoincrement())
+  seat_number     Int          @unique
+  status          TicketStatus @default(OPEN)
+  passenger_name  String?      @db.VarChar(120)
+  passenger_email String?      @db.VarChar(180)
+  passenger_phone String?      @db.VarChar(30)
+  booked_at       DateTime?
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+
+  @@map("tickets")
+}
