@@ -6,7 +6,7 @@
     "_postman_id": "improva-backend-collection"
   },
   "variable": [
-    { "key": "base_url", "value": "http://localhost:3000", "type": "string" },
+    { "key": "base_url", "value": "https://improva-backend.onrender.com", "type": "string" },
     { "key": "api_prefix", "value": "/api/v1", "type": "string" },
     { "key": "seat_number", "value": "1", "type": "string" }
   ],
