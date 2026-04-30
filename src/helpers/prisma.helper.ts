@@ -10,7 +10,20 @@ if (!databaseUrl) {
   );
 }
 
-const adapter = new PrismaMariaDb(databaseUrl);
+const parsed = new URL(databaseUrl);
+const adapter = new PrismaMariaDb({
+  host: parsed.hostname,
+  port: Number(parsed.port || 3306),
+  user: decodeURIComponent(parsed.username),
+  password: decodeURIComponent(parsed.password),
+  database: parsed.pathname.replace(/^\//, ""),
+  connectTimeout: 10000,
+  socketTimeout: 30000,
+  acquireTimeout: 30000,
+  ssl: {
+    rejectUnauthorized: true,
+  },
+});
 
 export const prisma = new PrismaClient({ adapter });
 
